@@ -1,0 +1,6 @@
+## Interface: 30200
+## Title: Evl's Blizzard UI Tweaks
+## Author: Evl
+
+modules\ActionBar.lua
+modules\TargetFrame.lua
