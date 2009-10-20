@@ -67,15 +67,54 @@ hooksecurefunc("ActionButton_Update", ActionButton_UpdateHook)
 hooksecurefunc("ActionButton_UpdateUsable", ActionButton_UpdateUsableHook)
 hooksecurefunc("ActionButton_OnUpdate", ActionButton_OnUpdateHook)
 
--- Compact
-local UIParent_ManageFramePositionsHook = function(self)
-	if MultiBarBottomLeft:IsShown() then
-		ShapeshiftButton1:SetPoint("BOTTOMLEFT", MultiBarBottomLeft, "TOPLEFT", 0, 5)
-	else
-		ShapeshiftButton1:SetPoint("BOTTOMLEFT", ActionButton1, "TOPLEFT", 0, 17)
-	end
+-- Compact (most of this updated code is stolen from TidyBar)
+local stackFrame = function(frame, relativeFrame, offsetY, offsetX)
+	frame:ClearAllPoints()
+	frame:SetPoint("BOTTOMLEFT", relativeFrame, "TOPLEFT", offsetX or 0, offsetY or 0)
+end
 
-	MultiBarBottomRight:SetPoint("LEFT", MultiBarBottomLeft, "RIGHT", 10, 0)
+local UIParent_ManageFramePositionsHook = function()
+	if not InCombatLockdown() then
+		local anchor
+		local offsetY
+		
+		-- Bottom left
+		if MultiBarBottomLeft:IsShown() then
+			anchor = MultiBarBottomLeft
+			offsetY = 4
+		else
+			anchor = ActionButton1
+			offsetY = 8 + (MainMenuExpBar:IsShown() and 9 or 0) + (ReputationWatchBar:IsShown() and 9 or 0)
+		end
+		
+		-- Bottom right
+		if MultiBarBottomRight:IsShown() then
+			stackFrame(MultiBarBottomRight, anchor, offsetY)
+			anchor = MultiBarBottomRight
+			offsetY = 4
+		end
+		
+		-- Shapeshift
+		if ShapeshiftButton1:IsShown() then
+			stackFrame(ShapeshiftButton1, anchor, offsetY)
+			anchor = ShapeshiftButton1
+			offsetY = 4
+		end
+		
+		-- Totem
+		if MultiCastActionBarFrame:IsShown() then	-- Totem bar
+			stackFrame(MultiCastActionBarFrame, anchor, offsetY)
+			anchor = MultiCastActionBarFrame
+			offsetY = 4
+		end
+
+		-- Pet
+		stackFrame(PetActionButton1, anchor, offsetY)
+		offsetY = 4
+
+		-- Possess
+		stackFrame(PossessButton1, anchor, offsetY)
+	end
 end
 
 hooksecurefunc("UIParent_ManageFramePositions", UIParent_ManageFramePositionsHook)
@@ -104,13 +143,21 @@ MainMenuBarTexture1:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", 128, 0)
 MainMenuBarLeftEndCap:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", -290, 0)
 MainMenuBarRightEndCap:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", 290, 0)
 
-CharacterMicroButton:ClearAllPoints()
-CharacterMicroButton:SetPoint("CENTER", UIParent, "CENTER", 0, -5000)
+-- Hide character micro buttons
+local VehicleMenuBar_MoveMicroButtonsHook = function()
+	if not InCombatLockdown() then
+		CharacterMicroButton:ClearAllPoints()
+		CharacterMicroButton:SetPoint("CENTER", UIParent, "CENTER", 0, -5000)
+	end
+end
+
+hooksecurefunc("VehicleMenuBar_MoveMicroButtons", VehicleMenuBar_MoveMicroButtonsHook)
+VehicleMenuBar_MoveMicroButtonsHook()
 
 MainMenuBarBackpackButton:ClearAllPoints()
 MainMenuBarBackpackButton:SetPoint("CENTER", UIParent, "CENTER", 0, -5000)
 
--- Auto-hide side bars
+-- Auto-hide side bar
 local showBar = function()
 	MultiBarRight:SetAlpha(1)
 end
