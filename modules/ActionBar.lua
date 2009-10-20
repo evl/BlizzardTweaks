@@ -140,6 +140,7 @@ end
 
 MainMenuBarTexture0:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", -128, 0)
 MainMenuBarTexture1:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", 128, 0)
+MainMenuMaxLevelBar0:SetPoint("BOTTOM", "MainMenuBarMaxLevelBar", "TOP", -128, 0)
 MainMenuBarLeftEndCap:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", -290, 0)
 MainMenuBarRightEndCap:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", 290, 0)
 
