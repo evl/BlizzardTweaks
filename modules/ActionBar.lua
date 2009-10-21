@@ -19,7 +19,7 @@ local ActionButton_UpdateHook = function(self)
 		local hotKey = self.elements.hotKey
 		local macroName = self.elements.macroName
 		
-		hotKey:Hide()
+		--hotKey:Hide()
 		macroName:Hide()
 	end
 end
@@ -73,7 +73,7 @@ local stackFrame = function(frame, relativeFrame, offsetY, offsetX)
 	frame:SetPoint("BOTTOMLEFT", relativeFrame, "TOPLEFT", offsetX or 0, offsetY or 0)
 end
 
-local UIParent_ManageFramePositionsHook = function()
+local updateFrames = function()
 	if not InCombatLockdown() then
 		local anchor
 		local offsetY
@@ -102,7 +102,7 @@ local UIParent_ManageFramePositionsHook = function()
 		end
 		
 		-- Totem
-		if MultiCastActionBarFrame:IsShown() then	-- Totem bar
+		if MultiCastActionBarFrame:IsShown() then
 			stackFrame(MultiCastActionBarFrame, anchor, offsetY)
 			anchor = MultiCastActionBarFrame
 			offsetY = 4
@@ -114,10 +114,14 @@ local UIParent_ManageFramePositionsHook = function()
 
 		-- Possess
 		stackFrame(PossessButton1, anchor, offsetY)
+		
+		-- Micro menu
+		CharacterMicroButton:ClearAllPoints()
+		CharacterMicroButton:SetPoint("CENTER", UIParent, "CENTER", 0, -5000)		
 	end
 end
 
-hooksecurefunc("UIParent_ManageFramePositions", UIParent_ManageFramePositionsHook)
+hooksecurefunc("UIParent_ManageFramePositions", updateFrames)
 
 UIPARENT_MANAGED_FRAME_POSITIONS["MultiBarBottomRight"] = nil
 UIPARENT_MANAGED_FRAME_POSITIONS["PetActionBarFrame"] = nil
@@ -138,22 +142,13 @@ for _, frame in ipairs({MainMenuBar, MainMenuExpBar, ReputationWatchBar, MainMen
 	frame:SetWidth(512)
 end
 
-MainMenuBarTexture0:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", -128, 0)
-MainMenuBarTexture1:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", 128, 0)
+MainMenuXPBarTexture0:SetPoint("BOTTOM", "MainMenuExpBar", "BOTTOM", -128, 2)
+MainMenuXPBarTexture1:SetPoint("BOTTOM", "MainMenuExpBar", "BOTTOM", 128, 3)
 MainMenuMaxLevelBar0:SetPoint("BOTTOM", "MainMenuBarMaxLevelBar", "TOP", -128, 0)
-MainMenuBarLeftEndCap:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", -290, 0)
-MainMenuBarRightEndCap:SetPoint("BOTTOM", MainMenuBar, "BOTTOM", 290, 0)
-
--- Hide character micro buttons
-local VehicleMenuBar_MoveMicroButtonsHook = function()
-	if not InCombatLockdown() then
-		CharacterMicroButton:ClearAllPoints()
-		CharacterMicroButton:SetPoint("CENTER", UIParent, "CENTER", 0, -5000)
-	end
-end
-
-hooksecurefunc("VehicleMenuBar_MoveMicroButtons", VehicleMenuBar_MoveMicroButtonsHook)
-VehicleMenuBar_MoveMicroButtonsHook()
+MainMenuBarTexture0:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", -128, 0)
+MainMenuBarTexture1:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", 128, 0)
+MainMenuBarLeftEndCap:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", -290, 0)
+MainMenuBarRightEndCap:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", 287, 0) 
 
 MainMenuBarBackpackButton:ClearAllPoints()
 MainMenuBarBackpackButton:SetPoint("CENTER", UIParent, "CENTER", 0, -5000)
@@ -173,3 +168,9 @@ for _, button in ipairs({MultiBarRight:GetChildren()}) do
 end
 
 hideBar()
+
+local frame = CreateFrame("Frame", nil, UIParent)
+frame:SetScript("OnEvent", updateFrames)
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+frame:RegisterEvent("UNIT_EXITED_VEHICLE")
