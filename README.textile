@@ -1,0 +1,10 @@
+Collection of tweaks for Blizzard's default UI
+
+h2. Features
+
+* Stacks the default bars on top of eachother
+* Removes character micro menu and bag buttons
+* Automatically shows right action bar on mouse over
+* Hides hotkey and macro labels on action buttons
+* Colors actions buttons when red when out of range and blue when lacking mana
+* Toggles percentage health display on target health bar on mouse over
