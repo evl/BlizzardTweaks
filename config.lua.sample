@@ -1,0 +1,6 @@
+evl_BlizzardTweaks.config.enhanceTargetFrame = true -- Enhance target frame health bar, if enabled the default display will be in percent health and exact values on mouse over
+evl_BlizzardTweaks.config.colorizeButtons = true -- Colorize action buttons when out of range, or when lacking mana/energy/focus
+evl_BlizzardTweaks.config.hideHotKeyLabels = true -- Hide hot key labels on action buttons
+evl_BlizzardTweaks.config.hideMacroLabels = true -- Hide macro name labels on action buttons
+evl_BlizzardTweaks.config.compactBars = true -- Compact default action bars so they stack on top of eachother
+evl_BlizzardTweaks.config.autoHideSideBars = true -- Automatically hide side bars except when mouse is over

@@ -1,3 +1,5 @@
+local config = evl_BlizzardTweaks.config
+
 -- Hide labels and macros on actionbuttons and color out of range
 local ActionButton_UpdateHotkeysHook = function(self, actionButtonType)
 	if not self.elements then
@@ -16,11 +18,13 @@ end
 
 local ActionButton_UpdateHook = function(self)
 	if self.elements then
-		local hotKey = self.elements.hotKey
-		local macroName = self.elements.macroName
+		if config.hideHotKeyLabels then
+			self.elements.hotKey:Hide()
+		end
 		
-		--hotKey:Hide()
-		macroName:Hide()
+		if config.hideMacroLabels then
+			self.elements.macroName:Hide()
+		end
 	end
 end
 
@@ -62,10 +66,15 @@ local ActionButton_OnUpdateHook = function(self, elapsed)
 	end
 end
 
-hooksecurefunc("ActionButton_UpdateHotkeys", ActionButton_UpdateHotkeysHook)
-hooksecurefunc("ActionButton_Update", ActionButton_UpdateHook)
-hooksecurefunc("ActionButton_UpdateUsable", ActionButton_UpdateUsableHook)
-hooksecurefunc("ActionButton_OnUpdate", ActionButton_OnUpdateHook)
+if config.colorizeButtons then
+	hooksecurefunc("ActionButton_UpdateHotkeys", ActionButton_UpdateHotkeysHook)
+	hooksecurefunc("ActionButton_UpdateUsable", ActionButton_UpdateUsableHook)
+	hooksecurefunc("ActionButton_OnUpdate", ActionButton_OnUpdateHook)
+end
+
+if config.hideHotKeyLabels or config.hideHotKeyLabels then
+	hooksecurefunc("ActionButton_Update", ActionButton_UpdateHook)
+end
 
 -- Compact (most of this updated code is stolen from TidyBar)
 local stackFrame = function(frame, relativeFrame, offsetY, offsetX)
@@ -121,56 +130,64 @@ local updateFrames = function()
 	end
 end
 
-hooksecurefunc("UIParent_ManageFramePositions", updateFrames)
+if config.compactBars then
+	hooksecurefunc("UIParent_ManageFramePositions", updateFrames)
 
-UIPARENT_MANAGED_FRAME_POSITIONS["MultiBarBottomRight"] = nil
-UIPARENT_MANAGED_FRAME_POSITIONS["PetActionBarFrame"] = nil
-UIPARENT_MANAGED_FRAME_POSITIONS["ShapeshiftBarFrame"] = nil
-UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
-UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
-UIPARENT_MANAGED_FRAME_POSITIONS["MultiCastActionBarFrame"] = nil
+	UIPARENT_MANAGED_FRAME_POSITIONS["MultiBarBottomRight"] = nil
+	UIPARENT_MANAGED_FRAME_POSITIONS["PetActionBarFrame"] = nil
+	UIPARENT_MANAGED_FRAME_POSITIONS["ShapeshiftBarFrame"] = nil
+	UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
+	UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
+	UIPARENT_MANAGED_FRAME_POSITIONS["MultiCastActionBarFrame"] = nil
 
-for _, frame in ipairs({MainMenuBarPageNumber, ActionBarUpButton, ActionBarDownButton, MainMenuXPBarTexture2, MainMenuXPBarTexture3, MainMenuBarTexture2, MainMenuBarTexture3, MainMenuMaxLevelBar2, MainMenuMaxLevelBar3}) do
-	frame:Hide()
+	for _, frame in ipairs({MainMenuBarPageNumber, ActionBarUpButton, ActionBarDownButton, MainMenuXPBarTexture2, MainMenuXPBarTexture3, MainMenuBarTexture2, MainMenuBarTexture3, MainMenuMaxLevelBar2, MainMenuMaxLevelBar3}) do
+		frame:Hide()
+	end
+
+	for _, texture in ipairs({ReputationWatchBarTexture2, ReputationWatchBarTexture3, ReputationXPBarTexture2, ReputationXPBarTexture3}) do
+		texture:SetTexture(nil)
+	end
+
+	for _, frame in ipairs({MainMenuBar, MainMenuExpBar, ReputationWatchBar, MainMenuBarMaxLevelBar, ReputationWatchStatusBar}) do
+		frame:SetWidth(512)
+	end
+
+	MainMenuXPBarTexture0:SetPoint("BOTTOM", "MainMenuExpBar", "BOTTOM", -128, 2)
+	MainMenuXPBarTexture1:SetPoint("BOTTOM", "MainMenuExpBar", "BOTTOM", 128, 3)
+	MainMenuMaxLevelBar0:SetPoint("BOTTOM", "MainMenuBarMaxLevelBar", "TOP", -128, 0)
+	MainMenuBarTexture0:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", -128, 0)
+	MainMenuBarTexture1:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", 128, 0)
+	MainMenuBarLeftEndCap:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", -290, 0)
+	MainMenuBarRightEndCap:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", 287, 0) 
+
+	MainMenuBarBackpackButton:ClearAllPoints()
+	MainMenuBarBackpackButton:SetPoint("CENTER", UIParent, "CENTER", 0, -5000)
+	
+	local frame = CreateFrame("Frame", nil, UIParent)
+	frame:SetScript("OnEvent", updateFrames)
+	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+	frame:RegisterEvent("PLAYER_TALENT_UPDATE")
+	frame:RegisterEvent("UNIT_EXITED_VEHICLE")
 end
 
-for _, texture in ipairs({ReputationWatchBarTexture2, ReputationWatchBarTexture3, ReputationXPBarTexture2, ReputationXPBarTexture3}) do
-	texture:SetTexture(nil)
+-- Auto-hide side bars
+if config.autoHideSideBars then
+	for _, bar in ipairs({MultiBarLeft, MultiBarRight}) do
+		local show = function()
+			bar:SetAlpha(1)
+		end
+		
+		local hide = function()
+			bar:SetAlpha(0)
+		end
+		
+		for _, button in ipairs({bar:GetChildren()}) do
+			button:HookScript("OnEnter", show)
+			button:HookScript("OnLeave", hide)
+		end
+		
+		hide()
+	end
 end
 
-for _, frame in ipairs({MainMenuBar, MainMenuExpBar, ReputationWatchBar, MainMenuBarMaxLevelBar, ReputationWatchStatusBar}) do
-	frame:SetWidth(512)
-end
-
-MainMenuXPBarTexture0:SetPoint("BOTTOM", "MainMenuExpBar", "BOTTOM", -128, 2)
-MainMenuXPBarTexture1:SetPoint("BOTTOM", "MainMenuExpBar", "BOTTOM", 128, 3)
-MainMenuMaxLevelBar0:SetPoint("BOTTOM", "MainMenuBarMaxLevelBar", "TOP", -128, 0)
-MainMenuBarTexture0:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", -128, 0)
-MainMenuBarTexture1:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", 128, 0)
-MainMenuBarLeftEndCap:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", -290, 0)
-MainMenuBarRightEndCap:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", 287, 0) 
-
-MainMenuBarBackpackButton:ClearAllPoints()
-MainMenuBarBackpackButton:SetPoint("CENTER", UIParent, "CENTER", 0, -5000)
-
--- Auto-hide side bar
-local showBar = function()
-	MultiBarRight:SetAlpha(1)
-end
-
-local hideBar = function()
-	MultiBarRight:SetAlpha(0)
-end
-
-for _, button in ipairs({MultiBarRight:GetChildren()}) do
-	button:HookScript("OnEnter", showBar)
-	button:HookScript("OnLeave", hideBar)
-end
-
-hideBar()
-
-local frame = CreateFrame("Frame", nil, UIParent)
-frame:SetScript("OnEvent", updateFrames)
-frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-frame:RegisterEvent("UNIT_EXITED_VEHICLE")

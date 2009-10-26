@@ -2,5 +2,8 @@
 ## Title: Evl's Blizzard UI Tweaks
 ## Author: Evl
 
+evl_BlizzardTweaks.lua
+config.lua
+
 modules\ActionBar.lua
 modules\TargetFrame.lua
