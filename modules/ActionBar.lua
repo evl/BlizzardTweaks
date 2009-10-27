@@ -165,10 +165,9 @@ if config.compactBars then
 	
 	local frame = CreateFrame("Frame", nil, UIParent)
 	frame:SetScript("OnEvent", updateFrames)
+	frame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
 	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-	frame:RegisterEvent("PLAYER_TALENT_UPDATE")
-	frame:RegisterEvent("UNIT_EXITED_VEHICLE")
 end
 
 -- Auto-hide side bars
