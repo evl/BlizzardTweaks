@@ -72,7 +72,7 @@ if config.colorizeButtons then
 	hooksecurefunc("ActionButton_OnUpdate", ActionButton_OnUpdateHook)
 end
 
-if config.hideHotKeyLabels or config.hideHotKeyLabels then
+if config.hideHotKeyLabels or config.hideMacroLabels then
 	hooksecurefunc("ActionButton_Update", ActionButton_UpdateHook)
 end
 
