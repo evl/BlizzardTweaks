@@ -66,26 +66,19 @@ local ActionButton_OnUpdateHook = function(self, elapsed)
 	end
 end
 
-local lastUpdate = 0
 local timeleft
 local ActionButton_OnUpdateCooldownHook = function(self, elapsed)
-	lastUpdate = lastUpdate + elapsed
-
-	if lastUpdate > .1 then
-		lastUpdate = 0
-	
-		if self.cooldown and self.cooldown.active then
-			timeLeft = ceil(self.cooldown.start + self.cooldown.duration - GetTime())
-			
-			if self.cooldown.enable > 0 and timeLeft > 0 then
-				if timeLeft <= config.cooldownThreshold then
-					self.cooldown.count:SetText(format("%d", timeLeft))
-				end
-			else
-				self.cooldown.count:SetText("")
-				self.cooldown.active = false
-			end			
-		end
+	if self.cooldown and self.cooldown.active then
+		timeLeft = ceil(self.cooldown.start + self.cooldown.duration - GetTime())
+		
+		if self.cooldown.enable > 0 and timeLeft > 0 then
+			if timeLeft <= config.cooldownThreshold then
+				self.cooldown.count:SetText(format("%d", timeLeft))
+			end
+		else
+			self.cooldown.count:SetText("")
+			self.cooldown.active = false
+		end			
 	end
 end
 
