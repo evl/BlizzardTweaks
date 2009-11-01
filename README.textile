@@ -14,4 +14,10 @@ h2. Features
 
 h3. Screenshot
 
-!http://www.internetfriendsforever.com/screenshots/Screen_shot_2009-11-01_at_01.20.19.png!
+!http://www.internetfriendsforever.com/screenshots/cleanbars.png!
+
+_Clean main menu_
+
+!http://www.internetfriendsforever.com/screenshots/micromenu.png!
+
+_Relocated micro menu and bag buttons_
