@@ -66,127 +66,74 @@ local ActionButton_OnUpdateHook = function(self, elapsed)
 	end
 end
 
+local lastUpdate = 0
+local timeleft
+local ActionButton_OnUpdateCooldownHook = function(self, elapsed)
+	lastUpdate = lastUpdate + elapsed
+
+	if lastUpdate > .1 then
+		lastUpdate = 0
+	
+		if self.cooldown and self.cooldown.active then
+			timeLeft = ceil(self.cooldown.start + self.cooldown.duration - GetTime())
+			
+			if self.cooldown.enable > 0 and timeLeft > 0 then
+				if timeLeft <= config.cooldownThreshold then
+					self.cooldown.count:SetText(format("%d", timeLeft))
+				end
+			else
+				self.cooldown.count:SetText("")
+				self.cooldown.active = false
+			end			
+		end
+	end
+end
+
+local CooldownFrame_SetTimerHook = function(self, start, duration, enable)
+	local button = self:GetParent()
+
+	if start > 0 and duration > 3 and enable > 0 then
+		if not button.cooldown then
+			local name = button:GetName() .. "Counter"
+			
+	    local frame = CreateFrame("Frame", name, self)
+	    frame:SetWidth(32)
+	    frame:SetHeight(32)
+	    frame:SetPoint("CENTER", button, "CENTER")
+
+	    local count = frame:CreateFontString(nil, "ARTWORK")
+			count:SetFont(unpack({STANDARD_TEXT_FONT, 20}))
+			count:SetShadowOffset(0.7, -0.7)
+	    count:SetAllPoints(frame)
+	    count:SetJustifyH("CENTER")
+
+	    button.cooldown = {
+	      count = count
+	    }
+		else
+			button.cooldown.count:SetText("")
+		end
+		
+		button.cooldown.active = true
+		button.cooldown.start = start
+		button.cooldown.duration = duration
+		button.cooldown.enable = enable
+
+		ActionButton_OnUpdateCooldownHook(self, 1)
+	end
+end
+
 if config.colorizeButtons then
 	hooksecurefunc("ActionButton_UpdateHotkeys", ActionButton_UpdateHotkeysHook)
 	hooksecurefunc("ActionButton_UpdateUsable", ActionButton_UpdateUsableHook)
 	hooksecurefunc("ActionButton_OnUpdate", ActionButton_OnUpdateHook)
 end
 
+if config.cooldownThreshold > 0 then
+	hooksecurefunc("ActionButton_OnUpdate", ActionButton_OnUpdateCooldownHook)
+	hooksecurefunc("CooldownFrame_SetTimer", CooldownFrame_SetTimerHook)
+end
+
 if config.hideHotKeyLabels or config.hideMacroLabels then
 	hooksecurefunc("ActionButton_Update", ActionButton_UpdateHook)
 end
-
--- Compact (most of this updated code is stolen from TidyBar)
-local stackFrame = function(frame, relativeFrame, offsetY, offsetX)
-	frame:ClearAllPoints()
-	frame:SetPoint("BOTTOMLEFT", relativeFrame, "TOPLEFT", offsetX or 0, offsetY or 0)
-end
-
-local updateFrames = function()
-	if not InCombatLockdown() then
-		local anchor
-		local offsetY
-		
-		-- Bottom left
-		if MultiBarBottomLeft:IsShown() then
-			anchor = MultiBarBottomLeft
-			offsetY = 4
-		else
-			anchor = ActionButton1
-			offsetY = 8 + (MainMenuExpBar:IsShown() and 9 or 0) + (ReputationWatchBar:IsShown() and 9 or 0)
-		end
-		
-		-- Bottom right
-		if MultiBarBottomRight:IsShown() then
-			stackFrame(MultiBarBottomRight, anchor, offsetY)
-			anchor = MultiBarBottomRight
-			offsetY = 4
-		end
-		
-		-- Shapeshift
-		if ShapeshiftButton1:IsShown() then
-			stackFrame(ShapeshiftButton1, anchor, offsetY)
-			anchor = ShapeshiftButton1
-			offsetY = 4
-		end
-		
-		-- Totem
-		if MultiCastActionBarFrame:IsShown() then
-			stackFrame(MultiCastActionBarFrame, anchor, offsetY)
-			anchor = MultiCastActionBarFrame
-			offsetY = 4
-		end
-
-		-- Pet
-		stackFrame(PetActionButton1, anchor, offsetY)
-		offsetY = 4
-
-		-- Possess
-		stackFrame(PossessButton1, anchor, offsetY)
-		
-		-- Micro menu
-		CharacterMicroButton:ClearAllPoints()
-		CharacterMicroButton:SetPoint("CENTER", UIParent, "CENTER", 0, -5000)		
-	end
-end
-
-if config.compactBars then
-	hooksecurefunc("UIParent_ManageFramePositions", updateFrames)
-
-	UIPARENT_MANAGED_FRAME_POSITIONS["MultiBarBottomRight"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["PetActionBarFrame"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["ShapeshiftBarFrame"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["MultiCastActionBarFrame"] = nil
-
-	for _, frame in ipairs({MainMenuBarPageNumber, ActionBarUpButton, ActionBarDownButton, MainMenuXPBarTexture2, MainMenuXPBarTexture3, MainMenuBarTexture2, MainMenuBarTexture3, MainMenuMaxLevelBar2, MainMenuMaxLevelBar3}) do
-		frame:Hide()
-	end
-
-	for _, texture in ipairs({ReputationWatchBarTexture2, ReputationWatchBarTexture3, ReputationXPBarTexture2, ReputationXPBarTexture3}) do
-		texture:SetTexture(nil)
-	end
-
-	for _, frame in ipairs({MainMenuBar, MainMenuExpBar, ReputationWatchBar, MainMenuBarMaxLevelBar, ReputationWatchStatusBar}) do
-		frame:SetWidth(512)
-	end
-
-	MainMenuXPBarTexture0:SetPoint("BOTTOM", "MainMenuExpBar", "BOTTOM", -128, 2)
-	MainMenuXPBarTexture1:SetPoint("BOTTOM", "MainMenuExpBar", "BOTTOM", 128, 3)
-	MainMenuMaxLevelBar0:SetPoint("BOTTOM", "MainMenuBarMaxLevelBar", "TOP", -128, 0)
-	MainMenuBarTexture0:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", -128, 0)
-	MainMenuBarTexture1:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", 128, 0)
-	MainMenuBarLeftEndCap:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", -290, 0)
-	MainMenuBarRightEndCap:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", 287, 0) 
-
-	MainMenuBarBackpackButton:ClearAllPoints()
-	MainMenuBarBackpackButton:SetPoint("CENTER", UIParent, "CENTER", 0, -5000)
-	
-	local frame = CreateFrame("Frame", nil, UIParent)
-	frame:SetScript("OnEvent", updateFrames)
-	frame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
-	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-end
-
--- Auto-hide side bars
-if config.autoHideSideBars then
-	for _, bar in ipairs({MultiBarLeft, MultiBarRight}) do
-		local show = function()
-			bar:SetAlpha(1)
-		end
-		
-		local hide = function()
-			bar:SetAlpha(0)
-		end
-		
-		for _, button in ipairs({bar:GetChildren()}) do
-			button:HookScript("OnEnter", show)
-			button:HookScript("OnLeave", hide)
-		end
-		
-		hide()
-	end
-end
-
