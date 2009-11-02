@@ -78,14 +78,9 @@ if config.compactBars then
 	UIPARENT_MANAGED_FRAME_POSITIONS["ShapeshiftBarFrame"] = nil
 	UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
 	UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["MultiCastActionBarFrame"] = nil
-	
-	UIPARENT_MANAGED_FRAME_POSITIONS["CONTAINER_OFFSET_X"] = nil
+	UIPARENT_MANAGED_FRAME_POSITIONS["MultiCastActionBarFrame"] = nil	
 	UIPARENT_MANAGED_FRAME_POSITIONS["CONTAINER_OFFSET_Y"] = nil
 	
-	CONTAINER_OFFSET_X = 10
-	CONTAINER_OFFSET_Y = 20
-
 	for _, frame in ipairs({MainMenuBarPageNumber, ActionBarUpButton, ActionBarDownButton, MainMenuXPBarTexture2, MainMenuXPBarTexture3, MainMenuBarTexture2, MainMenuBarTexture3, MainMenuMaxLevelBar2, MainMenuMaxLevelBar3}) do
 		frame:Hide()
 	end
@@ -125,6 +120,10 @@ if config.compactBars then
 	if config.autoHideMicroMenu then
 		ContainerFrame1:HookScript("OnShow", updateFrames)
 		ContainerFrame1:HookScript("OnHide", updateFrames)
+
+		CONTAINER_OFFSET_Y = 100
+	else
+		CONTAINER_OFFSET_Y = 20
 	end
 
 	local onEvent = function(self, event)

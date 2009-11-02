@@ -6,4 +6,5 @@ evl_BlizzardTweaks.config.cooldownThreshold = 10 -- Threshold in seconds for whe
 evl_BlizzardTweaks.config.compactBars = true -- Compact default action bars so they stack on top of eachother
 evl_BlizzardTweaks.config.cleanBars = true -- Remove main menu art
 evl_BlizzardTweaks.config.hideShapeShiftBar = false -- Hide shapeshift bar
+evl_BlizzardTweaks.config.autoHideMicroMenu = true -- Automatically hide micro and bags menu except when backpack is open
 evl_BlizzardTweaks.config.autoHideSideBars = true -- Automatically hide side bars except when mouse is over

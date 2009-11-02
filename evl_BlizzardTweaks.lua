@@ -8,6 +8,7 @@ evl_BlizzardTweaks.config = {
 	compactBars = true,
 	cleanBars = true,
 	hideShapeShiftBar = false,
+	autoHideMicroMenu = true,
 	autoHideSideBars = true,
 }
 
