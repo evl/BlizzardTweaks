@@ -1,10 +1,7 @@
 local config = evl_BlizzardTweaks.config
-local hideFrame = evl_BlizzardTweaks.hideFrame
 
 if config.compactBars then
-	local frame = CreateFrame("Frame", nil, UIParent)
-
-	-- Compact (most of this updated code is stolen from TidyBar)
+	-- Compact (most of this updated code is stolen from TidyBar. Thanks to Maul for helping me discover RegisterStateDriver)
 	local stackFrame = function(frame, relativeFrame, offsetY, offsetX)
 		frame:ClearAllPoints()
 		frame:SetPoint("BOTTOMLEFT", relativeFrame, "TOPLEFT", offsetX or 0, offsetY or 0)
@@ -12,15 +9,15 @@ if config.compactBars then
 
 	local updateFrames = function()
 		if not InCombatLockdown() then
-			local anchor
+			local anchor = ActionButton1
 			local offsetY
 
 			-- Bottom left
+			stackFrame(MultiBarBottomLeft, anchor, 6)
+
 			if MultiBarBottomLeft:IsShown() then
-				anchor = MultiBarBottomLeft
 				offsetY = 4
 			else
-				anchor = ActionButton1
 				offsetY = 8 + (MainMenuExpBar:IsShown() and 9 or 0) + (ReputationWatchBar:IsShown() and 9 or 0)
 			end
 
@@ -32,7 +29,12 @@ if config.compactBars then
 			end
 
 			-- Shapeshift
-			if ShapeshiftButton1:IsShown() then
+			if config.hideShapeShiftBar then
+				ShapeshiftBarFrame:UnregisterAllEvents()
+				ShapeshiftBarFrame:Hide()
+
+				RegisterStateDriver(ShapeshiftBarFrame, "visibility", "hide")
+			else
 				stackFrame(ShapeshiftButton1, anchor, offsetY)
 				anchor = ShapeshiftButton1
 				offsetY = 4
@@ -51,7 +53,7 @@ if config.compactBars then
 
 			-- Possess
 			stackFrame(PossessButton1, anchor, offsetY)
-
+			
 			-- Micro menu
 			if config.autoHideMicroMenu and ContainerFrame1:IsShown() then
 				MainMenuBarBackpackButton:ClearAllPoints()
@@ -65,21 +67,23 @@ if config.compactBars then
 					CharacterMicroButton:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -233, 8)
 				end
 			else
-				hideFrame(MainMenuBarBackpackButton, true, true)
-				hideFrame(CharacterMicroButton, true, true)
+				MainMenuBarBackpackButton:ClearAllPoints()
+				MainMenuBarBackpackButton:SetPoint("TOP", UIParent, "BOTTOM")
+				
+				CharacterMicroButton:ClearAllPoints()
+				CharacterMicroButton:SetPoint("TOP", UIParent, "BOTTOM")
 			end
 		end
 	end
-		
-	hooksecurefunc("UIParent_ManageFramePositions", updateFrames)
 
+	UIPARENT_MANAGED_FRAME_POSITIONS["MultiBarBottomLeft"] = nil
 	UIPARENT_MANAGED_FRAME_POSITIONS["MultiBarBottomRight"] = nil
 	UIPARENT_MANAGED_FRAME_POSITIONS["PetActionBarFrame"] = nil
 	UIPARENT_MANAGED_FRAME_POSITIONS["ShapeshiftBarFrame"] = nil
 	UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
 	UIPARENT_MANAGED_FRAME_POSITIONS["MultiCastActionBarFrame"] = nil	
-	UIPARENT_MANAGED_FRAME_POSITIONS["CONTAINER_OFFSET_Y"] = nil
+ 	
+	hooksecurefunc("UIParent_ManageFramePositions", updateFrames)
 	
 	for _, frame in ipairs({MainMenuBarPageNumber, ActionBarUpButton, ActionBarDownButton, MainMenuXPBarTexture2, MainMenuXPBarTexture3, MainMenuBarTexture2, MainMenuBarTexture3, MainMenuMaxLevelBar2, MainMenuMaxLevelBar3}) do
 		frame:Hide()
@@ -94,54 +98,57 @@ if config.compactBars then
 	end
 	
 	if config.cleanBars then
-		UIPARENT_MANAGED_FRAME_POSITIONS["MultiBarBottomLeft"].baseY = 11
-		
-		hideFrame(MainMenuBarTexture0)
-		hideFrame(MainMenuBarTexture1)
-		hideFrame(MainMenuBarLeftEndCap)
-		hideFrame(MainMenuBarRightEndCap)
-		hideFrame(MainMenuXPBarTexture0)
-		hideFrame(MainMenuXPBarTexture1)
-		hideFrame(MainMenuMaxLevelBar0)
-		hideFrame(MainMenuMaxLevelBar1)
-
-		hideFrame(BonusActionBarTexture0)
-		hideFrame(BonusActionBarTexture1)
+		for _, texture in ipairs({MainMenuBarTexture0, MainMenuBarTexture1, MainMenuBarLeftEndCap, MainMenuBarRightEndCap, MainMenuXPBarTexture0, MainMenuXPBarTexture1, MainMenuMaxLevelBar0, MainMenuMaxLevelBar1, BonusActionBarTexture0, BonusActionBarTexture1}) do
+			texture:SetTexture(nil)
+		end
 	else
-		MainMenuXPBarTexture0:SetPoint("BOTTOM", "MainMenuExpBar", "BOTTOM", -128, 2)
-		MainMenuXPBarTexture1:SetPoint("BOTTOM", "MainMenuExpBar", "BOTTOM", 128, 3)
-		MainMenuMaxLevelBar0:SetPoint("BOTTOM", "MainMenuBarMaxLevelBar", "TOP", -128, 0)
-		MainMenuBarTexture0:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", -128, 0)
-		MainMenuBarTexture1:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", 128, 0)
-		MainMenuBarLeftEndCap:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", -290, 0)
-		MainMenuBarRightEndCap:SetPoint("BOTTOM", "MainMenuBarArtFrame", "BOTTOM", 287, 0)
+		MainMenuXPBarTexture0:SetPoint("BOTTOM", MainMenuExpBar, "BOTTOM", -128, 2)
+		MainMenuXPBarTexture1:SetPoint("BOTTOM", MainMenuExpBar, "BOTTOM", 128, 3)
+		MainMenuMaxLevelBar0:SetPoint("BOTTOM", MainMenuBarMaxLevelBar, "TOP", -128, 0)
+		MainMenuBarTexture0:SetPoint("BOTTOM", MainMenuBarArtFrame, "BOTTOM", -128, 0)
+		MainMenuBarTexture1:SetPoint("BOTTOM", MainMenuBarArtFrame, "BOTTOM", 128, 0)
+		MainMenuBarLeftEndCap:SetPoint("BOTTOM", MainMenuBarArtFrame, "BOTTOM", -290, 0)
+		MainMenuBarRightEndCap:SetPoint("BOTTOM", MainMenuBarArtFrame, "BOTTOM", 287, 0)
 	end
 	
 	if config.autoHideMicroMenu then
 		ContainerFrame1:HookScript("OnShow", updateFrames)
 		ContainerFrame1:HookScript("OnHide", updateFrames)
-
-		CONTAINER_OFFSET_Y = 100
 	else
-		CONTAINER_OFFSET_Y = 20
+		ContainerFrame1:ClearAllPoints()
+		ContainerFrame1:SetPoint("TOP", UIParent, "BOTTOM")
 	end
 
-	local onEvent = function(self, event)
-		updateFrames()
-	end
-	
+	local frame = CreateFrame("Frame", nil, UIParent)
+	frame:SetScript("OnEvent", UIParent_ManageFramePositions)
 	frame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
-	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-	frame:SetScript("OnEvent", onEvent)
-end
-
-if config.hideShapeShiftBar then
-	hideFrame(ShapeshiftBarFrame)	
 end
 
 -- Auto-hide side bars
 if config.autoHideSideBars then
-	evl_BlizzardTweaks.enableMouseOver(MultiBarLeft, true)
-	evl_BlizzardTweaks.enableMouseOver(MultiBarRight, true)
+	local enableMouseOver = function(frame, includeChildren)
+		local show = function()
+			frame:SetAlpha(1)
+		end
+
+		local hide = function()
+			frame:SetAlpha(0)
+		end
+
+		if includeChildren then
+			for _, child in ipairs({frame:GetChildren()}) do
+				child:HookScript("OnEnter", show)
+				child:HookScript("OnLeave", hide)
+			end
+		end
+		
+		frame:EnableMouse(true)
+		frame:HookScript("OnEnter", show)
+		frame:HookScript("OnLeave", hide)
+
+		hide()
+	end	
+	
+	enableMouseOver(MultiBarLeft, true)
+	enableMouseOver(MultiBarRight, true)
 end
