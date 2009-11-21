@@ -17,6 +17,7 @@ if config.compactBars then
 
 			if MultiBarBottomLeft:IsShown() then
 				offsetY = 4
+				anchor = MultiBarBottomLeft
 			else
 				offsetY = 8 + (MainMenuExpBar:IsShown() and 9 or 0) + (ReputationWatchBar:IsShown() and 9 or 0)
 			end
