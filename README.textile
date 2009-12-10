@@ -1,5 +1,9 @@
 Collection of tweaks for Blizzard's default UI
 
+h2. Configuration
+
+Copy @config.lua.sample@ to @config.lua@ and modify as required.
+
 h2. Features
 
 * Stacks the default bars on top of eachother
