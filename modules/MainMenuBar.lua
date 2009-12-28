@@ -10,21 +10,39 @@ if config.compactBars then
 	local updateFrames = function()
 		if not InCombatLockdown() then
 			local anchor = ActionButton1
-			local offsetY
+			local offsetY = 4
+
+			-- Experience
+			if MainMenuExpBar:IsShown() then
+				stackFrame(MainMenuExpBar, anchor, offsetY)
+
+				anchor = MainMenuExpBar
+			else
+				offsetY = 6
+			end
+			
+			-- Reputation
+			if ReputationWatchBar:IsShown() then
+				stackFrame(ReputationWatchBar, anchor, offsetY)
+
+				anchor = ReputationWatchBar
+				offsetY = offsetY + 1
+			end
 
 			-- Bottom left
-			stackFrame(MultiBarBottomLeft, anchor, 6)
-
 			if MultiBarBottomLeft:IsShown() then
-				offsetY = 4
+				stackFrame(MultiBarBottomLeft, anchor, offsetY)
+				
 				anchor = MultiBarBottomLeft
+				offsetY = 4
 			else
 				offsetY = 8 + (MainMenuExpBar:IsShown() and 9 or 0) + (ReputationWatchBar:IsShown() and 9 or 0)
 			end
-
+			
 			-- Bottom right
 			if MultiBarBottomRight:IsShown() then
 				stackFrame(MultiBarBottomRight, anchor, offsetY)
+
 				anchor = MultiBarBottomRight
 				offsetY = 4
 			end
@@ -35,7 +53,7 @@ if config.compactBars then
 				ShapeshiftBarFrame:Hide()
 
 				RegisterStateDriver(ShapeshiftBarFrame, "visibility", "hide")
-			else
+			elseif ShapeshiftBarFrame:IsShown() then
 				stackFrame(ShapeshiftButton1, anchor, offsetY)
 				anchor = ShapeshiftButton1
 				offsetY = 4
@@ -48,8 +66,9 @@ if config.compactBars then
 				offsetY = 4
 			end
 
-			-- Pet
+			-- Pet & Vehicle
 			stackFrame(PetActionButton1, anchor, offsetY)
+			stackFrame(MainMenuBarVehicleLeaveButton, anchor, offsetY)
 			offsetY = 4
 
 			-- Possess
@@ -82,9 +101,10 @@ if config.compactBars then
 	UIPARENT_MANAGED_FRAME_POSITIONS["PetActionBarFrame"] = nil
 	UIPARENT_MANAGED_FRAME_POSITIONS["ShapeshiftBarFrame"] = nil
 	UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["MultiCastActionBarFrame"] = nil	
+	UIPARENT_MANAGED_FRAME_POSITIONS["MultiCastActionBarFrame"] = nil
  	
 	hooksecurefunc("UIParent_ManageFramePositions", updateFrames)
+	hooksecurefunc("ReputationWatchBar_Update", updateFrames)
 	
 	for _, frame in ipairs({MainMenuBarPageNumber, ActionBarUpButton, ActionBarDownButton, MainMenuXPBarTexture2, MainMenuXPBarTexture3, MainMenuBarTexture2, MainMenuBarTexture3, MainMenuMaxLevelBar2, MainMenuMaxLevelBar3}) do
 		frame:Hide()
@@ -99,7 +119,7 @@ if config.compactBars then
 	end
 	
 	if config.cleanBars then
-		for _, texture in ipairs({MainMenuBarTexture0, MainMenuBarTexture1, MainMenuBarLeftEndCap, MainMenuBarRightEndCap, MainMenuXPBarTexture0, MainMenuXPBarTexture1, MainMenuMaxLevelBar0, MainMenuMaxLevelBar1, BonusActionBarTexture0, BonusActionBarTexture1}) do
+		for _, texture in ipairs({MainMenuBarTexture0, MainMenuBarTexture1, ReputationWatchBarTexture0, ReputationWatchBarTexture1, ReputationXPBarTexture0, ReputationXPBarTexture1, MainMenuBarLeftEndCap, MainMenuBarRightEndCap, MainMenuXPBarTexture0, MainMenuXPBarTexture1, MainMenuMaxLevelBar0, MainMenuMaxLevelBar1, BonusActionBarTexture0, BonusActionBarTexture1}) do
 			texture:SetTexture(nil)
 		end
 	else
