@@ -15,18 +15,28 @@ if config.compactBars then
 			-- Experience
 			if MainMenuExpBar:IsShown() then
 				stackFrame(MainMenuExpBar, anchor, offsetY)
+				
+				MainMenuExpBar:SetWidth(500)
 
 				anchor = MainMenuExpBar
+				offsetY = 2
 			else
-				offsetY = 6
+				offsetY = 4
 			end
 			
 			-- Reputation
 			if ReputationWatchBar:IsShown() then
 				stackFrame(ReputationWatchBar, anchor, offsetY)
 
+				ReputationWatchBar:SetWidth(500)
+				ReputationWatchBar:SetHeight(8)
+				ReputationWatchStatusBar:SetWidth(500)
+				ReputationWatchStatusBar:SetHeight(8)
+
 				anchor = ReputationWatchBar
-				offsetY = offsetY + 1
+				offsetY = 5
+			else
+				offsetY = 4
 			end
 
 			-- Bottom left
