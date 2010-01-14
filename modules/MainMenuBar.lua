@@ -129,7 +129,7 @@ if config.compactBars then
 	end
 	
 	if config.cleanBars then
-		for _, texture in ipairs({MainMenuBarTexture0, MainMenuBarTexture1, ReputationWatchBarTexture0, ReputationWatchBarTexture1, ReputationXPBarTexture0, ReputationXPBarTexture1, MainMenuBarLeftEndCap, MainMenuBarRightEndCap, MainMenuXPBarTexture0, MainMenuXPBarTexture1, MainMenuMaxLevelBar0, MainMenuMaxLevelBar1, BonusActionBarTexture0, BonusActionBarTexture1}) do
+		for _, texture in ipairs({MainMenuBarTexture0, MainMenuBarTexture1, ReputationWatchBarTexture0, ReputationWatchBarTexture1, ReputationXPBarTexture0, ReputationXPBarTexture1, MainMenuBarLeftEndCap, MainMenuBarRightEndCap, MainMenuXPBarTexture0, MainMenuXPBarTexture1, MainMenuMaxLevelBar0, MainMenuMaxLevelBar1, BonusActionBarTexture0, BonusActionBarTexture1, PossessBackground1, PossessBackground2}) do
 			texture:SetTexture(nil)
 		end
 	else
