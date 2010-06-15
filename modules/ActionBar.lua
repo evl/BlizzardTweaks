@@ -1,4 +1,5 @@
-local config = evl_BlizzardTweaks.config
+local addonName, addon = ...
+local config = addon.config
 
 -- Hide labels and macros on actionbuttons and color out of range
 local ActionButton_UpdateHotkeysHook = function(self, actionButtonType)

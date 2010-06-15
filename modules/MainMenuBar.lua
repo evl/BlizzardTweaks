@@ -1,4 +1,5 @@
-local config = evl_BlizzardTweaks.config
+local addonName, addon = ...
+local config = addon.config
 
 if config.compactBars then
 	-- Compact (most of this updated code is stolen from TidyBar. Thanks to Maul for helping me discover RegisterStateDriver)

@@ -1,5 +1,6 @@
-evl_BlizzardTweaks = {}
-evl_BlizzardTweaks.config = {
+local addonName, addon = ...
+
+addon.config = {
 	enhanceTargetFrame = true,
 	colorizeButtons = true,
 	hideHotKeyLabels = true,
