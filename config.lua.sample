@@ -7,4 +7,4 @@
 --evl_BlizzardTweaks.config.cleanBars = true -- Remove main menu art
 --evl_BlizzardTweaks.config.hideShapeShiftBar = false -- Hide shapeshift bar
 --evl_BlizzardTweaks.config.autoHideMicroMenu = true -- Automatically hide micro and bags menu except when backpack is open
---evl_BlizzardTweaks.config.autoHideSideBars = true -- Automatically hide side bars except when mouse is over
+--evl_BlizzardTweaks.config.autoHideSideBars = true -- Automatically hide side bars except when backpack is open
