@@ -8,7 +8,7 @@ local TargetFrameHealthBar_OnEnterHook = function(self)
 end
 
 local TargetFrameHealthBar_OnLeaveHook = function(self)
-self.showPercentage = true
+	self.showPercentage = true
    
 	TextStatusBar_UpdateTextString(self)
 end

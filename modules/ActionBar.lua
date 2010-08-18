@@ -117,8 +117,11 @@ local CooldownFrame_SetTimerHook = function(self, start, duration, enable)
 	end
 end
 
-if config.colorizeButtons then
+if config.colorizeButtons or config.hideHotKeyLabels or config.hideMacroLabels then
 	hooksecurefunc("ActionButton_UpdateHotkeys", ActionButton_UpdateHotkeysHook)
+end
+
+if config.colorizeButtons then
 	hooksecurefunc("ActionButton_UpdateUsable", ActionButton_UpdateUsableHook)
 	hooksecurefunc("ActionButton_OnUpdate", ActionButton_OnUpdateHook)
 end
