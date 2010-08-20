@@ -78,7 +78,14 @@ if config.compactBars then
 			end
 
 			-- Pet & Vehicle
-			stackFrame(PetActionButton1, anchor, offsetY)
+			PetActionBarFrame:ClearAllPoints()
+			PetActionBarFrame:SetPoint("BOTTOM", anchor, "TOP", 0, offsetY)
+			
+			if not MultiBarBottomLeft:IsShown() and MultiBarBottomRight:IsShown() then
+				SlidingActionBarTexture0:Hide()
+				SlidingActionBarTexture1:Hide()
+			end
+			
 			stackFrame(MainMenuBarVehicleLeaveButton, anchor, offsetY)
 			offsetY = 4
 
