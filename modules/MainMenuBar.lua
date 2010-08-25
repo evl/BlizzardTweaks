@@ -163,4 +163,5 @@ end
 if config.hideShapeShiftBar then
 	ShapeshiftBarFrame:UnregisterAllEvents()
 	ShapeshiftBarFrame:Hide()
+	ShapeshiftBarFrame.Show = noop
 end
