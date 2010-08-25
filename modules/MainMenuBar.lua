@@ -1,167 +1,133 @@
 local addonName, addon = ...
 local config = addon.config
+local noop = function() end
 
+-- This is mostly stolen from nMainbar minus the stuff I didn"t need
 if config.compactBars then
-	-- Compact (most of this updated code is stolen from TidyBar. Thanks to Maul for helping me discover RegisterStateDriver)
-	local stackFrame = function(frame, relativeFrame, offsetY, offsetX)
-		frame:ClearAllPoints()
-		frame:SetPoint("BOTTOMLEFT", relativeFrame, "TOPLEFT", offsetX or 0, offsetY or 0)
+	MultiBarBottomRight:ClearAllPoints()
+	MultiBarBottomRight:SetPoint("BOTTOM", MultiBarBottomLeft, "TOP", 0, 4)
+	MultiBarBottomRight.SetPoint = noop
+
+	-- Stop managing frame positions
+	for _, frame in pairs({
+		"MultiBarRight",
+		"MultiBarBottomRight",
+		"PetActionBarFrame",
+		"ShapeshiftBarFrame",
+		"PossessBarFrame",
+	}) do
+		UIPARENT_MANAGED_FRAME_POSITIONS[frame] = nil
 	end
 
-	local updateFrames = function()
-		if not InCombatLockdown() then
-			local anchor = ActionButton1
-			local offsetY = 4
+	for _, button in pairs({
+		_G["ActionBarUpButton"],
+		_G["ActionBarDownButton"],
+	}) do
+		button:SetAlpha(0)
+		button:EnableMouse(false)
+	end
+	
+	local container = CreateFrame("Frame")
+	container:Hide()
+	
+	for i = 2, 3 do
+		for _, texture in pairs({
+	    _G["MainMenuBarTexture" .. i],
+	    _G["MainMenuMaxLevelBar" .. i],
+	    _G["MainMenuXPBarTexture" .. i],
 
-			-- Experience
-			if MainMenuExpBar:IsShown() then
-				stackFrame(MainMenuExpBar, anchor, offsetY)
-				
-				MainMenuExpBar:SetWidth(500)
+	    _G["ReputationWatchBarTexture" .. i],
+	    _G["ReputationXPBarTexture" .. i],
 
-				anchor = MainMenuExpBar
-				offsetY = 2
-			else
-				offsetY = 4
-			end
-			
-			-- Reputation
-			if ReputationWatchBar:IsShown() then
-				stackFrame(ReputationWatchBar, anchor, offsetY)
+	    _G["MainMenuBarPageNumber"],
 
-				ReputationWatchBar:SetWidth(500)
-				ReputationWatchBar:SetHeight(8)
-				ReputationWatchStatusBar:SetWidth(500)
-				ReputationWatchStatusBar:SetHeight(8)
+	    _G["SlidingActionBarTexture0"],
+	    _G["SlidingActionBarTexture1"],
 
-				anchor = ReputationWatchBar
-				offsetY = 5
-			else
-				offsetY = 4
-			end
+	    _G["ShapeshiftBarLeft"],
+	    _G["ShapeshiftBarMiddle"],
+	    _G["ShapeshiftBarRight"],
 
-			-- Bottom left
-			if MultiBarBottomLeft:IsShown() then
-				stackFrame(MultiBarBottomLeft, anchor, offsetY)
-				
-				anchor = MultiBarBottomLeft
-				offsetY = 4
-			else
-				offsetY = 8 + (MainMenuExpBar:IsShown() and 9 or 0) + (ReputationWatchBar:IsShown() and 9 or 0)
-			end
-			
-			-- Bottom right
-			if MultiBarBottomRight:IsShown() then
-				stackFrame(MultiBarBottomRight, anchor, offsetY)
-
-				anchor = MultiBarBottomRight
-				offsetY = 4
-			end
-
-			-- Shapeshift
-			if config.hideShapeShiftBar then
-				ShapeshiftBarFrame:UnregisterAllEvents()
-				ShapeshiftBarFrame:Hide()
-
-				RegisterStateDriver(ShapeshiftBarFrame, "visibility", "hide")
-			elseif ShapeshiftBarFrame:IsShown() then
-				stackFrame(ShapeshiftButton1, anchor, offsetY)
-				anchor = ShapeshiftButton1
-				offsetY = 4
-			end
-
-			-- Totem
-			if MultiCastActionBarFrame:IsShown() then
-				stackFrame(MultiCastActionBarFrame, anchor, offsetY)
-				anchor = MultiCastActionBarFrame
-				offsetY = 4
-			end
-
-			-- Pet & Vehicle
-			PetActionBarFrame:ClearAllPoints()
-			PetActionBarFrame:SetPoint("BOTTOM", anchor, "TOP", 0, offsetY)
-			
-			if not MultiBarBottomLeft:IsShown() and MultiBarBottomRight:IsShown() then
-				SlidingActionBarTexture0:Hide()
-				SlidingActionBarTexture1:Hide()
-			end
-			
-			stackFrame(MainMenuBarVehicleLeaveButton, anchor, offsetY)
-			offsetY = 4
-
-			-- Possess
-			stackFrame(PossessButton1, anchor, offsetY)
-			
-			-- Micro menu
-			if config.autoHideMicroMenu and ContainerFrame1:IsShown() then
-				MainMenuBarBackpackButton:ClearAllPoints()
-				MainMenuBarBackpackButton:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -10, 48)
-
-				CharacterMicroButton:ClearAllPoints()
-				
-				if UnitInVehicle("player") then
-					CharacterMicroButton:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -108, 45)
-				else
-					CharacterMicroButton:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -233, 8)
-				end
-			else
-				MainMenuBarBackpackButton:ClearAllPoints()
-				MainMenuBarBackpackButton:SetPoint("TOP", UIParent, "BOTTOM")
-				
-				CharacterMicroButton:ClearAllPoints()
-				CharacterMicroButton:SetPoint("TOP", UIParent, "BOTTOM")
-			end
+	    _G["PossessBackground1"],
+	    _G["PossessBackground2"],
+		}) do
+	    texture:SetParent(container)
 		end
 	end
-
-	UIPARENT_MANAGED_FRAME_POSITIONS["MultiBarBottomLeft"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["MultiBarBottomRight"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["PetActionBarFrame"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["ShapeshiftBarFrame"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["PossessBarFrame"] = nil
-	UIPARENT_MANAGED_FRAME_POSITIONS["MultiCastActionBarFrame"] = nil
- 	
-	hooksecurefunc("UIParent_ManageFramePositions", updateFrames)
-	hooksecurefunc("ReputationWatchBar_Update", updateFrames)
 	
-	for _, frame in ipairs({MainMenuBarPageNumber, ActionBarUpButton, ActionBarDownButton, MainMenuXPBarTexture2, MainMenuXPBarTexture3, MainMenuBarTexture2, MainMenuBarTexture3, MainMenuMaxLevelBar2, MainMenuMaxLevelBar3}) do
-		frame:Hide()
+	for _, bar in pairs({
+		_G["MainMenuBar"],
+		_G["MainMenuExpBar"],
+		_G["MainMenuBarMaxLevelBar"],
+
+		_G["ReputationWatchStatusBar"],
+		_G["ReputationWatchBar"],
+	}) do
+	    bar:SetWidth(512)
 	end
 
-	for _, texture in ipairs({ReputationWatchBarTexture2, ReputationWatchBarTexture3, ReputationXPBarTexture2, ReputationXPBarTexture3}) do
-		texture:SetTexture(nil)
-	end
+	MainMenuBarTexture0:SetPoint("BOTTOM", MainMenuBarArtFrame, -128, 0)
+	MainMenuBarTexture1:SetPoint("BOTTOM", MainMenuBarArtFrame, 128, 0)
 
-	for _, frame in ipairs({MainMenuBar, MainMenuExpBar, ReputationWatchBar, MainMenuBarMaxLevelBar, ReputationWatchStatusBar}) do
-		frame:SetWidth(512)
-	end
+	MainMenuMaxLevelBar0:SetPoint("BOTTOM", MainMenuBarMaxLevelBar, "TOP", -128, 0)
+
+	MainMenuXPBarTexture0:SetPoint("BOTTOM", MainMenuExpBar, -128, 3)
+	MainMenuXPBarTexture1:SetPoint("BOTTOM", MainMenuExpBar, 128, 3)
+
+	MainMenuBarLeftEndCap:SetPoint("BOTTOM", MainMenuBarArtFrame, -289, 0)
+	MainMenuBarLeftEndCap.SetPoint = noop
+
+	MainMenuBarRightEndCap:SetPoint("BOTTOM", MainMenuBarArtFrame, 289, 0)
+	MainMenuBarRightEndCap.SetPoint = noop
 	
-	if config.cleanBars then
-		for _, texture in ipairs({MainMenuBarTexture0, MainMenuBarTexture1, ReputationWatchBarTexture0, ReputationWatchBarTexture1, ReputationXPBarTexture0, ReputationXPBarTexture1, MainMenuBarLeftEndCap, MainMenuBarRightEndCap, MainMenuXPBarTexture0, MainMenuXPBarTexture1, MainMenuMaxLevelBar0, MainMenuMaxLevelBar1, BonusActionBarTexture0, BonusActionBarTexture1, PossessBackground1, PossessBackground2}) do
-			texture:SetTexture(nil)
-		end
-	else
-		MainMenuXPBarTexture0:SetPoint("BOTTOM", MainMenuExpBar, "BOTTOM", -128, 2)
-		MainMenuXPBarTexture1:SetPoint("BOTTOM", MainMenuExpBar, "BOTTOM", 128, 3)
-		MainMenuMaxLevelBar0:SetPoint("BOTTOM", MainMenuBarMaxLevelBar, "TOP", -128, 0)
-		MainMenuBarTexture0:SetPoint("BOTTOM", MainMenuBarArtFrame, "BOTTOM", -128, 0)
-		MainMenuBarTexture1:SetPoint("BOTTOM", MainMenuBarArtFrame, "BOTTOM", 128, 0)
-		MainMenuBarLeftEndCap:SetPoint("BOTTOM", MainMenuBarArtFrame, "BOTTOM", -290, 0)
-		MainMenuBarRightEndCap:SetPoint("BOTTOM", MainMenuBarArtFrame, "BOTTOM", 287, 0)
-	end
+	SocialsMicroButton:ClearAllPoints()
+	SocialsMicroButton:SetPoint("TOPLEFT", CharacterMicroButton, "BOTTOMLEFT", 0, 20)
 	
+	-- Pet bar
+	PetActionBarFrame:ClearAllPoints()
+	PetActionBarFrame:SetPoint("BOTTOMLEFT", MultiBarBottomLeft:IsVisible() and MultiBarBottomLeft or MainMenuBar, "TOPLEFT", 0, 0)
+	PetActionBarFrame.SetPoint = noop
+	PetActionButton1:SetPoint("LEFT", PetActionBarFrame, "LEFT", -2, 0)
+
+	for i = 2, NUM_SHAPESHIFT_SLOTS do
+	    _G["PetActionButton" .. i]:SetPoint("LEFT", _G["PetActionButton" .. (i - 1)], "RIGHT", 3, 0)
+	end    
+	
+	-- Shapeshift bar
+	ShapeshiftBarFrame:SetPoint("BOTTOMLEFT", MultiBarBottomLeft, "TOPLEFT", 0, 0)
+	ShapeshiftButton1:SetPoint("LEFT", ShapeshiftBarFrame, "LEFT", -2, 0)
+
+	for i = 2, NUM_SHAPESHIFT_SLOTS do
+	    _G["ShapeshiftButton" .. i]:SetPoint("LEFT", _G["ShapeshiftButton" .. (i - 1)], "RIGHT", 3, 0)
+	end	
+
+	-- Auto hide micro menu
 	if config.autoHideMicroMenu then
-		ContainerFrame1:HookScript("OnShow", updateFrames)
-		ContainerFrame1:HookScript("OnHide", updateFrames)
-	else
-		ContainerFrame1:ClearAllPoints()
-		ContainerFrame1:SetPoint("TOP", UIParent, "BOTTOM")
-	end
+		hooksecurefunc("VehicleMenuBar_MoveMicroButtons", function()
+			CharacterMicroButton:ClearAllPoints()
 
-	local frame = CreateFrame("Frame", nil, UIParent)
-	frame:SetScript("OnEvent", UIParent_ManageFramePositions)
-	frame:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
-	frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+			if VehicleMenuBar.currSkin == "Mechanical" then
+		    CharacterMicroButton:SetPoint("BOTTOMLEFT", VehicleMenuBar, "BOTTOMRIGHT", -340, 41)
+		  elseif VehicleMenuBar.currSkin == "Natural" then
+				CharacterMicroButton:SetPoint("BOTTOMLEFT", VehicleMenuBar, "BOTTOMRIGHT", -365, 41)
+		  else
+				MainMenuBarBackpackButton:ClearAllPoints()
+
+				if ContainerFrame1:IsShown() then
+					MainMenuBarBackpackButton:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -10, 48)
+					CharacterMicroButton:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -233, 8)
+				else
+					MainMenuBarBackpackButton:SetPoint("BOTTOMLEFT", UIParent, 9000, 9000)
+					CharacterMicroButton:SetPoint("BOTTOMLEFT", UIParent, 9000, 9000)				
+				end
+			end
+		end)
+
+		ContainerFrame1:HookScript("OnShow", VehicleMenuBar_MoveMicroButtons)
+		ContainerFrame1:HookScript("OnHide", VehicleMenuBar_MoveMicroButtons)
+
+		VehicleMenuBar_MoveMicroButtons()
+	end
 end
 
 -- Auto-hide side bars
@@ -181,14 +147,20 @@ if config.autoHideSideBars then
 				child:HookScript("OnLeave", hide)
 			end
 		end
-		
+
 		frame:EnableMouse(true)
 		frame:HookScript("OnEnter", show)
 		frame:HookScript("OnLeave", hide)
 
 		hide()
-	end	
-	
+	end
+
 	enableMouseOver(MultiBarLeft, true)
 	enableMouseOver(MultiBarRight, true)
+end
+
+-- Shape shift
+if config.hideShapeShiftBar then
+	ShapeshiftBarFrame:UnregisterAllEvents()
+	ShapeshiftBarFrame:Hide()
 end
