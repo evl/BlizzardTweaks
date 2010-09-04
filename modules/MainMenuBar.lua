@@ -84,9 +84,13 @@ if config.compactBars then
 	SocialsMicroButton:SetPoint("TOPLEFT", CharacterMicroButton, "BOTTOMLEFT", 0, 20)
 	
 	-- Pet bar
-	PetActionBarFrame:ClearAllPoints()
-	PetActionBarFrame:SetPoint("BOTTOMLEFT", MultiBarBottomLeft:IsVisible() and MultiBarBottomLeft or MainMenuBar, "TOPLEFT", 0, 0)
+	PetActionBarFrame.OriginalSetPoint = PetActionBarFrame.SetPoint
 	PetActionBarFrame.SetPoint = noop
+	PetActionBarFrame:HookScript("OnShow", function()
+		PetActionBarFrame:ClearAllPoints()
+		PetActionBarFrame:OriginalSetPoint("BOTTOMLEFT", MultiBarBottomLeft:IsVisible() and MultiBarBottomLeft or MainMenuBar, "TOPLEFT", 0, 0)
+	end)
+	
 	PetActionButton1:SetPoint("LEFT", PetActionBarFrame, "LEFT", -2, 0)
 
 	for i = 2, NUM_SHAPESHIFT_SLOTS do
