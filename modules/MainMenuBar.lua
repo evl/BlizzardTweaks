@@ -12,7 +12,6 @@ if config.compactBars then
 	for _, frame in pairs({
 		"MultiBarRight",
 		"MultiBarBottomRight",
-		"PetActionBarFrame",
 		"ShapeshiftBarFrame",
 		"PossessBarFrame",
 	}) do
@@ -80,24 +79,23 @@ if config.compactBars then
 	-- Pet bar
 	PetActionBarFrame:HookScript("OnShow", function()
 		local anchor
-		
+		local offsetX = 0
+
 		if MultiBarBottomRight:IsVisible() then
 			anchor = MultiBarBottomRight
 		elseif MultiBarBottomLeft:IsVisible() then
 			anchor = MultiBarBottomLeft
 		else
 			anchor = MainMenuBar
+			offsetX = PETACTIONBAR_XPOS
 		end
-		
-		PetActionBarFrame:ClearAllPoints()
-		PetActionBarFrame:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", 0, 0)
-		PetActionButton1:SetPoint("LEFT", PetActionBarFrame, "LEFT", -2, 0)
-	end)
 	
-	PetActionButton1:SetPoint("LEFT", PetActionBarFrame, "LEFT", -2, 0)
+		PetActionButton1:ClearAllPoints()
+		PetActionButton1:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", offsetX, 3)
+	end)
 
 	for i = 2, NUM_SHAPESHIFT_SLOTS do
-	    _G["PetActionButton" .. i]:SetPoint("LEFT", _G["PetActionButton" .. (i - 1)], "RIGHT", 3, 0)
+		_G["PetActionButton" .. i]:SetPoint("LEFT", _G["PetActionButton" .. (i - 1)], "RIGHT", 3, 0)
 	end    
 	
 	-- Shapeshift bar
