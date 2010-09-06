@@ -20,8 +20,8 @@ if config.compactBars then
 	end
 
 	for _, button in pairs({
-		_G["ActionBarUpButton"],
-		_G["ActionBarDownButton"],
+		ActionBarUpButton,
+		ActionBarDownButton
 	}) do
 		button:SetAlpha(0)
 		button:EnableMouse(false)
@@ -30,40 +30,37 @@ if config.compactBars then
 	local container = CreateFrame("Frame")
 	container:Hide()
 	
-	for i = 2, 3 do
-		for _, texture in pairs({
-	    _G["MainMenuBarTexture" .. i],
-	    _G["MainMenuMaxLevelBar" .. i],
-	    _G["MainMenuXPBarTexture" .. i],
-
-	    _G["ReputationWatchBarTexture" .. i],
-	    _G["ReputationXPBarTexture" .. i],
-
-	    _G["MainMenuBarPageNumber"],
-
-	    _G["SlidingActionBarTexture0"],
-	    _G["SlidingActionBarTexture1"],
-
-	    _G["ShapeshiftBarLeft"],
-	    _G["ShapeshiftBarMiddle"],
-	    _G["ShapeshiftBarRight"],
-
-	    _G["PossessBackground1"],
-	    _G["PossessBackground2"],
-		}) do
-	    texture:SetParent(container)
-		end
+	for _, texture in pairs({
+  	MainMenuBarTexture2,
+  	MainMenuBarTexture3,
+	  MainMenuMaxLevelBar2,
+	  MainMenuMaxLevelBar3,
+	  MainMenuXPBarTexture2,
+	  MainMenuXPBarTexture3,
+	  ReputationWatchBarTexture2,
+	  ReputationWatchBarTexture3,
+	  ReputationXPBarTexture2,
+	  ReputationXPBarTexture3,
+	  MainMenuBarPageNumber,
+	  SlidingActionBarTexture0,
+	  SlidingActionBarTexture1,
+	  ShapeshiftBarLeft,
+	  ShapeshiftBarMiddle,
+	  ShapeshiftBarRight,
+	  PossessBackground1,
+	  PossessBackground2,
+	}) do
+    texture:SetParent(container)
 	end
 	
 	for _, bar in pairs({
-		_G["MainMenuBar"],
-		_G["MainMenuExpBar"],
-		_G["MainMenuBarMaxLevelBar"],
-
-		_G["ReputationWatchStatusBar"],
-		_G["ReputationWatchBar"],
+		MainMenuBar,
+		MainMenuExpBar,
+		MainMenuBarMaxLevelBar,
+		ReputationWatchStatusBar,
+		ReputationWatchBar,
 	}) do
-	    bar:SetWidth(512)
+		bar:SetWidth(512)
 	end
 
 	MainMenuBarTexture0:SetPoint("BOTTOM", MainMenuBarArtFrame, -128, 0)
@@ -80,15 +77,21 @@ if config.compactBars then
 	MainMenuBarRightEndCap:SetPoint("BOTTOM", MainMenuBarArtFrame, 289, 0)
 	MainMenuBarRightEndCap.SetPoint = noop
 	
-	SocialsMicroButton:ClearAllPoints()
-	SocialsMicroButton:SetPoint("TOPLEFT", CharacterMicroButton, "BOTTOMLEFT", 0, 20)
-	
 	-- Pet bar
-	PetActionBarFrame.OriginalSetPoint = PetActionBarFrame.SetPoint
-	PetActionBarFrame.SetPoint = noop
 	PetActionBarFrame:HookScript("OnShow", function()
+		local anchor
+		
+		if MultiBarBottomRight:IsVisible() then
+			anchor = MultiBarBottomRight
+		elseif MultiBarBottomLeft:IsVisible() then
+			anchor = MultiBarBottomLeft
+		else
+			anchor = MainMenuBar
+		end
+		
 		PetActionBarFrame:ClearAllPoints()
-		PetActionBarFrame:OriginalSetPoint("BOTTOMLEFT", MultiBarBottomLeft:IsVisible() and MultiBarBottomLeft or MainMenuBar, "TOPLEFT", 0, 0)
+		PetActionBarFrame:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", 0, 0)
+		PetActionButton1:SetPoint("LEFT", PetActionBarFrame, "LEFT", -2, 0)
 	end)
 	
 	PetActionButton1:SetPoint("LEFT", PetActionBarFrame, "LEFT", -2, 0)
@@ -103,40 +106,12 @@ if config.compactBars then
 
 	for i = 2, NUM_SHAPESHIFT_SLOTS do
 	    _G["ShapeshiftButton" .. i]:SetPoint("LEFT", _G["ShapeshiftButton" .. (i - 1)], "RIGHT", 3, 0)
-	end	
-
-	-- Auto hide micro menu
-	if config.autoHideMicroMenu then
-		hooksecurefunc("VehicleMenuBar_MoveMicroButtons", function()
-			CharacterMicroButton:ClearAllPoints()
-
-			if VehicleMenuBar.currSkin == "Mechanical" then
-		    CharacterMicroButton:SetPoint("BOTTOMLEFT", VehicleMenuBar, "BOTTOMRIGHT", -340, 41)
-		  elseif VehicleMenuBar.currSkin == "Natural" then
-				CharacterMicroButton:SetPoint("BOTTOMLEFT", VehicleMenuBar, "BOTTOMRIGHT", -365, 41)
-		  else
-				MainMenuBarBackpackButton:ClearAllPoints()
-
-				if ContainerFrame1:IsShown() then
-					MainMenuBarBackpackButton:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -10, 48)
-					CharacterMicroButton:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -233, 8)
-				else
-					MainMenuBarBackpackButton:SetPoint("BOTTOMLEFT", UIParent, 9000, 9000)
-					CharacterMicroButton:SetPoint("BOTTOMLEFT", UIParent, 9000, 9000)				
-				end
-			end
-		end)
-
-		ContainerFrame1:HookScript("OnShow", VehicleMenuBar_MoveMicroButtons)
-		ContainerFrame1:HookScript("OnHide", VehicleMenuBar_MoveMicroButtons)
-
-		VehicleMenuBar_MoveMicroButtons()
-	end
+	end		
 end
 
 -- Auto-hide side bars
 if config.autoHideSideBars then
-	local enableMouseOver = function(frame, includeChildren)
+	local enableBarMouseOver = function(frame, includeChildren)
 		local show = function()
 			frame:SetAlpha(1)
 		end
@@ -159,8 +134,84 @@ if config.autoHideSideBars then
 		hide()
 	end
 
-	enableMouseOver(MultiBarLeft, true)
-	enableMouseOver(MultiBarRight, true)
+	enableBarMouseOver(MultiBarLeft, true)
+	enableBarMouseOver(MultiBarRight, true)
+end
+
+-- Auto-hide micro menu and bag buttons
+if config.autoHideMicroMenu then
+  CharacterMicroButton:ClearAllPoints()
+  CharacterMicroButton:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -226, 0)
+	
+	MainMenuBarBackpackButton:ClearAllPoints()
+	MainMenuBarBackpackButton:SetPoint("BOTTOMRIGHT", relativeTo, "BOTTOMRIGHT", -25, 40)
+
+	KeyRingButton:Enable()
+	KeyRingButton:EnableDrawLayer()
+	KeyRingButton:Show()
+	KeyRingButton:ClearAllPoints()
+	KeyRingButton:SetPoint("BOTTOMRIGHT", MainMenuBarBackpackButton, "BOTTOMRIGHT", 22, -1)
+
+	local enableMicroMenuMouseOver = function(children, showInVehicle)
+		local container = CreateFrame("Frame", nil, UIParent)
+
+		local show = function()
+			for _, child in ipairs(children) do
+				child:SetAlpha(1)
+			end
+		end
+
+		local hide = function()
+			if not showInVehicle or not UnitHasVehicleUI("player") then
+				for _, child in ipairs(children) do
+					child:SetAlpha(0)
+				end
+			end
+		end
+
+		for _, child in ipairs(children) do
+			child:HookScript("OnEnter", show)
+			child:HookScript("OnLeave", hide)
+		end
+
+		container:EnableMouse(true)
+		container:HookScript("OnEnter", show)
+		container:HookScript("OnLeave", hide)
+		
+		hide()
+		
+		return container
+	end
+
+	local menuButtons = {
+		CharacterMicroButton,
+		SpellbookMicroButton,
+		TalentMicroButton,
+		AchievementMicroButton,
+		QuestLogMicroButton,
+		SocialsMicroButton,
+		PVPMicroButton,
+		LFDMicroButton,
+		MainMenuMicroButton,
+		HelpMicroButton
+	}
+	
+	local menuContainer = enableMicroMenuMouseOver(menuButtons, true)
+	menuContainer:SetPoint("TOPLEFT", CharacterMicroButton, "TOPLEFT", 0, -20)
+	menuContainer:SetPoint("BOTTOMRIGHT", HelpMicroButton, "BOTTOMRIGHT", 0, 0)
+	
+	local bagButtons = {
+		MainMenuBarBackpackButton,
+		CharacterBag0Slot,
+		CharacterBag1Slot,
+		CharacterBag2Slot,
+		CharacterBag3Slot,
+		KeyRingButton
+	}
+	
+	local bagContainer = enableMicroMenuMouseOver(bagButtons)
+	bagContainer:SetPoint("TOPLEFT", CharacterBag3Slot, "TOPLEFT", -4, 8)
+	bagContainer:SetPoint("BOTTOMRIGHT", KeyRingButton, "BOTTOMRIGHT", 4, -4)
 end
 
 -- Shape shift
