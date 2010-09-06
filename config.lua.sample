@@ -8,3 +8,4 @@ config.compactBars = true -- Compact default action bars so they stack on top of
 config.hideShapeShiftBar = false -- Hide shapeshift bar
 config.autoHideMicroMenu = true -- Automatically hide micro and bags menu except when backpack is open
 config.autoHideSideBars = true -- Automatically hide side bars except when backpack is open
+config.cooldownThreshold = 0 -- Threshold in seconds for when to show cooldown counter on action buttons, set to 0 to disable

@@ -8,4 +8,5 @@ addon.config = {
 	hideShapeShiftBar = false,
 	autoHideMicroMenu = true,
 	autoHideSideBars = true,
+	cooldownThreshold = 0,
 }
