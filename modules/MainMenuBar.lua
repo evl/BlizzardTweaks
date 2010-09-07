@@ -10,10 +10,11 @@ if config.compactBars then
 
 	-- Stop managing frame positions
 	for _, frame in pairs({
-		"MultiBarRight",
 		"MultiBarBottomRight",
+		"PetActionBarFrame",
 		"ShapeshiftBarFrame",
 		"PossessBarFrame",
+		"MultiCastActionBarFrame",
 	}) do
 		UIPARENT_MANAGED_FRAME_POSITIONS[frame] = nil
 	end
@@ -32,20 +33,24 @@ if config.compactBars then
 	for _, texture in pairs({
   	MainMenuBarTexture2,
   	MainMenuBarTexture3,
+	  MainMenuBarPageNumber,
 	  MainMenuMaxLevelBar2,
 	  MainMenuMaxLevelBar3,
 	  MainMenuXPBarTexture2,
 	  MainMenuXPBarTexture3,
+	
 	  ReputationWatchBarTexture2,
 	  ReputationWatchBarTexture3,
 	  ReputationXPBarTexture2,
 	  ReputationXPBarTexture3,
-	  MainMenuBarPageNumber,
+	
 	  SlidingActionBarTexture0,
 	  SlidingActionBarTexture1,
+	
 	  ShapeshiftBarLeft,
 	  ShapeshiftBarMiddle,
 	  ShapeshiftBarRight,
+	
 	  PossessBackground1,
 	  PossessBackground2,
 	}) do
@@ -56,6 +61,7 @@ if config.compactBars then
 		MainMenuBar,
 		MainMenuExpBar,
 		MainMenuBarMaxLevelBar,
+
 		ReputationWatchStatusBar,
 		ReputationWatchBar,
 	}) do
@@ -76,35 +82,37 @@ if config.compactBars then
 	MainMenuBarRightEndCap:SetPoint("BOTTOM", MainMenuBarArtFrame, 289, 0)
 	MainMenuBarRightEndCap.SetPoint = noop
 	
-	-- Pet bar
-	PetActionBarFrame:HookScript("OnShow", function()
-		local anchor
-		local offsetX = 0
-
-		if MultiBarBottomRight:IsVisible() then
-			anchor = MultiBarBottomRight
-		elseif MultiBarBottomLeft:IsVisible() then
-			anchor = MultiBarBottomLeft
-		else
-			anchor = MainMenuBar
-			offsetX = PETACTIONBAR_XPOS
+	local anchorToShownFrame = function(button, frames, offsetX, offsetY)
+		for _, anchor in pairs(frames) do
+			if anchor:IsShown() then
+				button:ClearAllPoints()
+				button:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", (anchor == MainMenuBar and PETACTIONBAR_XPOS or 0) + (offsetX or 0), offsetY or 0)
+				break
+			end
 		end
-	
-		PetActionButton1:ClearAllPoints()
-		PetActionButton1:SetPoint("BOTTOMLEFT", anchor, "TOPLEFT", offsetX, 3)
+	end
+
+	-- Maybe use OnLoad instead
+	-- Pet bar
+	PetActionBarFrame:HookScript("OnEvent", function()
+		anchorToShownFrame(PetActionButton1, {MultiBarBottomRight, MultiBarBottomLeft, MainMenuBar}, 0, 4)
 	end)
 
-	for i = 2, NUM_SHAPESHIFT_SLOTS do
-		_G["PetActionButton" .. i]:SetPoint("LEFT", _G["PetActionButton" .. (i - 1)], "RIGHT", 3, 0)
-	end    
-	
 	-- Shapeshift bar
-	ShapeshiftBarFrame:SetPoint("BOTTOMLEFT", MultiBarBottomLeft, "TOPLEFT", 0, 0)
-	ShapeshiftButton1:SetPoint("LEFT", ShapeshiftBarFrame, "LEFT", -2, 0)
+	ShapeshiftBarFrame:HookScript("OnEvent", function()
+		anchorToShownFrame(ShapeshiftButton1, {PetActionButton1, MultiBarBottomRight, MultiBarBottomLeft, MainMenuBar}, -2, 2)
+	end)
 
-	for i = 2, NUM_SHAPESHIFT_SLOTS do
-	    _G["ShapeshiftButton" .. i]:SetPoint("LEFT", _G["ShapeshiftButton" .. (i - 1)], "RIGHT", 3, 0)
-	end		
+	-- Multicast bar
+	MultiCastActionBarFrame:HookScript("OnShow", function()
+		anchorToShownFrame(MultiCastSlotButton1, {ShapeshiftButton1, PetActionButton1, MultiBarBottomRight, MultiBarBottomLeft, MainMenuBar})
+	end)
+
+	--- Tighten spacing since we don't have any art
+	for i = 2, NUM_PET_ACTION_SLOTS do
+		_G["PetActionButton" .. i]:SetPoint("LEFT", _G["PetActionButton" .. (i - 1)], "RIGHT", 3, 0)
+		_G["ShapeshiftButton" .. i]:SetPoint("LEFT", _G["ShapeshiftButton" .. (i - 1)], "RIGHT", 0, 0)
+	end	
 end
 
 -- Auto-hide side bars
@@ -119,7 +127,7 @@ if config.autoHideSideBars then
 		end
 
 		if includeChildren then
-			for _, child in ipairs({frame:GetChildren()}) do
+			for _, child in pairs({frame:GetChildren()}) do
 				child:HookScript("OnEnter", show)
 				child:HookScript("OnLeave", hide)
 			end
@@ -154,20 +162,20 @@ if config.autoHideMicroMenu then
 		local container = CreateFrame("Frame", nil, UIParent)
 
 		local show = function()
-			for _, child in ipairs(children) do
+			for _, child in pairs(children) do
 				child:SetAlpha(1)
 			end
 		end
 
 		local hide = function()
 			if not showInVehicle or not UnitHasVehicleUI("player") then
-				for _, child in ipairs(children) do
+				for _, child in pairs(children) do
 					child:SetAlpha(0)
 				end
 			end
 		end
 
-		for _, child in ipairs(children) do
+		for _, child in pairs(children) do
 			child:HookScript("OnEnter", show)
 			child:HookScript("OnLeave", hide)
 		end
