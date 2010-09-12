@@ -204,14 +204,8 @@ if config.autoHideMicroMenu then
 	local container = CreateFrame("Frame", nil, UIParent)
 	container:SetPoint("TOP", KeyRingButton)
 	container:SetPoint("LEFT", CharacterMicroButton)
-	container:SetPoint("BOTTOMRIGHT", HelpMicroButton, "BOTTOMRIGHT", -10, -10)
+	container:SetPoint("BOTTOMRIGHT", HelpMicroButton)
 	
-	container:SetBackdrop({
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
-		tile = true, tileSize = 8
-	})
-	container:SetBackdropColor(0, 0, 0)
-
 	enableMouseOver(container, buttons)
 end
 
