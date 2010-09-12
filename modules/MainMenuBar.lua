@@ -137,27 +137,29 @@ if config.compactBars then
 		MultiCastActionBarFrame.SetPoint = noop
 	end)
 
-	if InCombatLockdown() then
-		frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-	else
-		frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	end
+	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
-local enableMouseOver = function(frame, children, reparent)
+local enableMouseOver = function(frame, children)
+	frame.children = children
+	
 	local show = function()
 		frame:SetAlpha(1)
+		
+		for _, child in pairs(children) do
+			child:SetAlpha(1)
+		end
 	end
 
 	local hide = function()
 		frame:SetAlpha(0)
+
+		for _, child in pairs(children) do
+			child:SetAlpha(0)
+		end
 	end
 
 	for _, child in pairs(children) do
-		if reparent then
-			child:SetParent(frame)
-		end
-
 		child:HookScript("OnEnter", show)
 		child:HookScript("OnLeave", hide)
 	end
@@ -179,10 +181,7 @@ end
 
 -- Auto-hide micro menu and bag buttons
 if config.autoHideMicroMenu then
-	--AchievementMicroButton:UnregisterAllEvents()
-	--TalentMicroButton:UnregisterAllEvents()
-
-	local menuButtons = {
+	local buttons = {
 		CharacterMicroButton,
 		SpellbookMicroButton,
 		TalentMicroButton,
@@ -192,10 +191,8 @@ if config.autoHideMicroMenu then
 		PVPMicroButton,
 		LFDMicroButton,
 		MainMenuMicroButton,
-		HelpMicroButton
-	}
+		HelpMicroButton,
 
-	local bagButtons = {
 		MainMenuBarBackpackButton,
 		CharacterBag0Slot,
 		CharacterBag1Slot,
@@ -203,17 +200,19 @@ if config.autoHideMicroMenu then
 		CharacterBag3Slot,
 		KeyRingButton
 	}
+	
+	local container = CreateFrame("Frame", nil, UIParent)
+	container:SetPoint("TOP", KeyRingButton)
+	container:SetPoint("LEFT", CharacterMicroButton)
+	container:SetPoint("BOTTOMRIGHT", HelpMicroButton, "BOTTOMRIGHT", -10, -10)
+	
+	container:SetBackdrop({
+		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", 
+		tile = true, tileSize = 8
+	})
+	container:SetBackdropColor(0, 0, 0)
 
-	local menuContainer = CreateFrame("Frame", nil, UIParent)
-	menuContainer:SetPoint("TOPLEFT", CharacterMicroButton, "TOPLEFT", 0, -20)
-	menuContainer:SetPoint("BOTTOMRIGHT", HelpMicroButton, "BOTTOMRIGHT", 0, 0)
-
-	local bagContainer =  CreateFrame("Frame", nil, UIParent)
-	bagContainer:SetPoint("TOPLEFT", CharacterBag3Slot, "TOPLEFT", -4, 8)
-	bagContainer:SetPoint("BOTTOMRIGHT", KeyRingButton, "BOTTOMRIGHT", 4, -4)
-
-	enableMouseOver(bagContainer, bagButtons, true)
-	enableMouseOver(menuContainer, menuButtons, true)
+	enableMouseOver(container, buttons)
 end
 
 -- Shape shift
