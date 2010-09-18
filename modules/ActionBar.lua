@@ -16,7 +16,7 @@ end
 
 if config.cooldownThreshold > 0 then
 	local floor = math.floor
-	local round = function(x) return floor(x + 0.5) end
+	local round = function(value) return floor(value + 0.5) end
 	
 	-- The core of this is from tullaCC, I just don't want all those formatting options
 	local stopTimer = function(self)

@@ -181,6 +181,8 @@ end
 
 -- Auto-hide micro menu and bag buttons
 if config.autoHideMicroMenu then
+	AchievementMicroButton:UnregisterAllEvents()
+	
 	local buttons = {
 		CharacterMicroButton,
 		SpellbookMicroButton,
@@ -206,7 +208,11 @@ if config.autoHideMicroMenu then
 	container:SetPoint("LEFT", CharacterMicroButton)
 	container:SetPoint("BOTTOMRIGHT", HelpMicroButton)
 	
-	enableMouseOver(container, buttons)
+	container:SetScript("OnEvent", function(self)
+		enableMouseOver(self, buttons)
+	end)
+	
+	container:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
 -- Shape shift
