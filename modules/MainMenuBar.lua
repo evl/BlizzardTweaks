@@ -152,10 +152,14 @@ local enableMouseOver = function(frame, children)
 	end
 
 	local hide = function()
-		frame:SetAlpha(0)
+		if UnitInVehicle("player") then
+			show()
+		else
+			frame:SetAlpha(0)
 
-		for _, child in pairs(children) do
-			child:SetAlpha(0)
+			for _, child in pairs(children) do
+				child:SetAlpha(0)
+			end
 		end
 	end
 
@@ -213,6 +217,9 @@ if config.autoHideMicroMenu then
 	end)
 	
 	container:RegisterEvent("PLAYER_ENTERING_WORLD")
+	container:RegisterEvent("PLAYER_REGEN_ENABLED")
+	container:RegisterEvent("UNIT_ENTERED_VEHICLE")
+	container:RegisterEvent("UNIT_EXITED_VEHICLE")
 end
 
 -- Shape shift
