@@ -2,10 +2,3 @@ local addonName, addon = ...
 local config = addon.config
 
 config.enhanceTargetFrame = true -- Enhance target frame health bar, if enabled the default display will be in percent health and exact values on mouse over
-config.hideHotKeyLabels = true -- Hide hot key labels on action buttons
-config.hideMacroLabels = true -- Hide macro name labels on action buttons
-config.compactBars = true -- Compact default action bars so they stack on top of eachother
-config.hideShapeShiftBar = false -- Hide shapeshift bar
-config.autoHideMicroMenu = true -- Automatically hide micro and bags menu except when backpack is open
-config.autoHideSideBars = true -- Automatically hide side bars except when backpack is open
-config.cooldownThreshold = 0 -- Threshold in seconds for when to show cooldown counter on action buttons, set to 0 to disable
